@@ -19,9 +19,9 @@ in stack_pool class in the direction that goes from its begining towards its end
 */
 template <typename P, typename N, typename T>
 class _iterator {
-    // Iterator to be used on stack from the pool
+    // Iterator to be used on stack for pool
     P* stackpool;
-    N ptr; //stack_type
+    N myvalue; //stack_type
 
 public:
 
@@ -32,19 +32,19 @@ public:
     using iterator_category = std::forward_iterator_tag;
 
     // Let's construct the  iterator
-    _iterator(P* _stackpool, N _ptr) : stackpool{ _stackpool }, ptr{ _ptr } {}
+    _iterator(P* _stackpool, N _myvalue) : stackpool{ _stackpool }, myvalue{ _myvalue } {}
 
-    reference operator*() const { return stackpool->value(ptr); }// this is used  for overriding the operator * 
+    reference operator*() const { return stackpool->value(myvalue); }// this is used  for overriding the operator * 
 
     _iterator& operator++() {// this is used for pre-incrementation  point to the next node and overriding the operator ++
-        ptr = stackpool->next(ptr);
+        myvalue = stackpool->next(myvalue);
         return *this; // this return _iterator type
     }
 
     _iterator operator++(int) { // This is the post incrementation, it  copy the point this-> temp
 		// increment _iterator and return the non incremented value 
         auto temp = *this;
-        ++ptr; 
+        ++myvalue; 
         return temp;
     }
 
@@ -54,30 +54,22 @@ public:
     }// This compare two iterator and return false if both are different.   
 
     friend bool operator==(const _iterator& x, const _iterator& y) {
-        return x.ptr == y.ptr;
+        return x.myvalue == y.myvalue;
     }// this compare two interator and return TRUE if both are equal
 
 };
 
-// In the following line, three cases for exception are consider: 
+// The exception cases exception are as follow: 
 
 //1)  Popping an empty stack -> exception 
 
-struct EmptyStack : public std::exception { 
+struct Stack_empty : public std::exception { 
     std::string message;
-    EmptyStack(std::string message) : message{ message } {}
+    Stack_empty(std::string message) : message{ message } {}
 };
 
-//2) Popping a stack with non head value -> exception
 
-struct NoHeadStack : public std::exception {
-    std::string message;
-    NoHeadStack(std::string message) : message{ message } {}
-};
-
-//
-
-// 3) Different types passed to pool durring push 
+// 2) Different types passed to pool durring push 
 
 struct DifferentType : public std::exception {
     std::string message;
@@ -105,7 +97,7 @@ class stack_pool {
     node_t &node(stack_type x) noexcept { return pool[x - 1]; } //  noexcept is used to detect at compile-time if 
 	// a function can throw an exception.
  
-    const node_t &node(stack_type x) const noexcept { return pool[x - 1]; }// this synatxe and the one on above 
+    const node_t &node(stack_type x) const noexcept { return pool[x - 1]; }// this syntaxe and the one on above 
 // will put the node at idx==0, but will be referency at 1 in order to use zero as the refrence for zero. 
 // we are overloading node()
 
@@ -143,8 +135,7 @@ class stack_pool {
 		return tmp;
 	}
 
-	// Let's pushes element at the front of the stack
-	// the following will be used to insert the head
+	// Let's push elements at the front/head of the stack
 
 	template<typename X> stack_type _push(X &&x, stack_type head){
 		auto tmp = get_node();
@@ -155,7 +146,7 @@ class stack_pool {
 
 public:
 
-    stack_pool() = default; // Initialize empty stack 
+    stack_pool() = default; // Initialize an empty stack 
 
     explicit stack_pool(size_type n) { 
 		pool.reserve(n);
@@ -178,9 +169,6 @@ public:
     const_iterator cend(stack_type) const noexcept { return const_iterator(this, end()); }
 
     stack_type new_stack()const noexcept { return end(); }//  new empty stack of type stact_pool
-
-
-
 
 
     void reserve(size_type n) { 
@@ -214,7 +202,7 @@ public:
 
 
 
-    stack_type push(const T &val, stack_type head) { return _push(val, head); }// this insert the value to the head
+    stack_type push(const T &val, stack_type head) noexcept { return _push(val, head); }// this insert the value to the head
 // it could throw exception for invalide insertion type. 
 
     stack_type push(T &&val, stack_type head) { return _push(std::move(val), head);}
@@ -223,11 +211,8 @@ public:
 
    
     stack_type pop(stack_type x) {// pop the head of the stack  and and throw the exception if exist. 
-//        if (x.size()==2) {
-  //          throw NoHeadStack("Trying to pop an stack by passing no-head.");
-    //    }
         if (empty(x)) {
-            throw EmptyStack("Trying to pop an Empty Stack.");
+            throw Stack_empty("Trying to pop from empty stack.");
         }
 
         auto tmp = next(x);
@@ -244,18 +229,16 @@ public:
     }
    
     void print_stack(stack_type x) { // this funtion is used to print the stack
-        std::cout << "The elment of stacks are:" << std::endl;
         for (auto start = begin(x), finish = end(x); start != finish; ++start)
         {
-            std::cout << "[" << *start << "]";
+            std::cout << *start << "-->";
         }
-        std::cout << "\n";
+        std::cout <<std::endl;
     }
    
     void print_pool(stack_type pool) noexcept {
-        std::cout << "Stack pool is: " << std::endl;
         for (auto i = 0; i < pool.size(); i++) {
-            std::cout << "[" << pool[i].value << "]";
+            std::cout << pool[i].value << "  ";
         }
         std::cout << std::endl;
     }
