@@ -221,28 +221,6 @@ public:
 
 
 
-// The folowing  method will be used for head insertion on the stack
-//    template<typename H>
- 
-
-  // stack_type _push(H&& val, const stack_type head) {
-    //   
-   //     if (empty(free_nodes)) {
-   //         pool.emplace_back(std::forward<H>(val), head, true);
-    //        last(head) = false;
-      //      return static_cast<stack_type>(pool.size());
-       // }
-     //   else {
-       //     auto tmp = free_nodes;
-        //    value(free_nodes) = val;
-         //   free_nodes = next(free_nodes);
-          //  next(tmp) = head;
-           // last(head) = false;
-           // last(tmp) = true;
-           // return tmp;
-       // }
-   // }
-
    
     stack_type pop(stack_type x) {// pop the head of the stack  and and throw the exception if exist. 
 //        if (x.size()==2) {
